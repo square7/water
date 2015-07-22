@@ -108,6 +108,60 @@ double screened(SystemClass& sys)
 	  energy+=fac*exp(fac2);
 	}
     }
+  // Next calculate forces
+  // screened coulomb 
+  for(int i = 0; i < sys.r.size(); ++i)
+    {
+      dVec sk;
+      for (int k = 0; k < sys.k.size(); ++k)
+	{
+	  dVec kps=sys.k[k];
+	  double k2=kps*kps;
+	  double fac=4.0/k2*exp(-k2/2.0/sys.params.alpha);
+	  double sj = 0;
+	  for(int j = 0; j < sys.r.size(); ++j)
+	    {
+	      dVec r12;
+	      double dist, dist2;
+	      sys.getDisp(i,j,dist,dist2,r12);
+	      sj+=sys.q[j]*sin(kps*r12);
+	    }
+	  fac*=sj;
+	  sk=sk+fac*kps;
+	}
+      sys.force[i]=sys.q[i]*sk;
+    }
+  // short range force
+  for(int i = 0; i < sys.r.size(); ++i)
+    {
+      dVec sj;
+      for(int j = 0; j < sys.r.size(); ++j)
+	{
+	  dVec r12;
+	  double dist, dist2;
+	  sys.getDisp(i,j,dist,dist2,r12);
+	  double fac=0;
+	  double fac2=0;
+	  if(sys.type[i]=='O' && sys.type[j]=='O')
+	    {
+	      fac=sys.params.AOO;
+	      fac2=(sys.params.RO*2-dist)/sys.params.rho;
+	    }
+	  else if(sys.type[i]=='H' && sys.type[j]=='H')
+	    {
+	      fac=sys.params.AHH;
+	      fac2=(sys.params.RH*2-dist)/sys.params.rho;
+	    }
+	  else
+	    {
+	      fac=sys.params.AOH;
+	      fac2=(sys.params.RO+sys.params.RH-dist)/sys.params.rho;
+	    }
+	  double temp=fac*exp(fac2)/dist/sys.params.rho;
+	  sj=sj+temp*r12; // Need to check sign!!!
+	}
+      sys.force[i]=sys.force[i]+sj;
+    }
   return energy;
 }
 

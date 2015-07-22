@@ -137,6 +137,7 @@ class SystemClass
 	    q.push_back(params.qH);
 	    r.push_back(dVec(p));
 	  }
+	force.push_back(dVec());
       }
   }
   void buildk()
