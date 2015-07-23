@@ -72,6 +72,13 @@ int main(int argc, char** argv)
       iss>>typ>>f[0]>>f[1]>>f[2];
       force.push_back(dVec(f));
     }
+  //SystemClass sys("10000.cel","10000.pos");
+  //double e0=screened(sys);
+  //cout << sys.force[10] << endl;
+  //sys.r[10][2]+=1e-7;
+  //sys.buildDisp();
+  //double e1=screened(sys);
+  //cout << (e1-e0)/1e-7 << endl;
   vector<double> newP=optimizer(params, force);
   for(int i = 0;i < pNames.size(); ++i)
     {
