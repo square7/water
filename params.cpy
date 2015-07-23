@@ -1,0 +1,11 @@
+a  10.
+kc  10. 
+rc  4. 
+o  -2 
+h  1 
+aoo  10 
+ahh  10 
+aoh  10 
+ro  .5 
+rh  .2 
+rr  .1 

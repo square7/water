@@ -114,19 +114,19 @@ class SystemClass
   vector<char> type;
   vector<vector<dVec> > disp;
   vector<vector<double> > dist, dist2;
-  SystemClass(string cel, string pos)
+  SystemClass(string cel, string pos, double a=10., double kc=8.0, double rc=4.0, double o=-2.,double h=1.,double aoo=10,double ahh=10,double aoh=10,double ro=.5, double rh=.2,double rr=.1)
     {
-      params.alpha=8.;
-      params.kcut=8.0;
-      params.rcut=5.0;
-      params.qO=-2.0;
-      params.qH=1.0;
-      params.AOO=10.0;
-      params.AHH=10.0;
-      params.AOH=params.AHO=10.0;
-      params.RO=.5;
-      params.RH=.2;
-      params.rho=.1;
+      params.alpha=a;
+      params.kcut=kc;
+      params.rcut=rc;
+      params.qO=o;
+      params.qH=h;
+      params.AOO=aoo;
+      params.AHH=ahh;
+      params.AOH=params.AHO=aoh;
+      params.RO=ro;
+      params.RH=rh;
+      params.rho=rr;
       params.readCell(cel);
       readPos(pos);
       buildk();
@@ -177,7 +177,7 @@ class SystemClass
     MaxkIndex[0]= (int) ceil(2.*params.kcut/params.ka[0]);
     MaxkIndex[1]= (int) ceil(2.*params.kcut/params.kb[1]);
     MaxkIndex[2]= (int) ceil(2.*params.kcut/params.kc[2]);
-    cerr << MaxkIndex << endl;
+    //cerr << MaxkIndex << endl;
     for (int ix=-MaxkIndex[0]; ix<=MaxkIndex[0]; ix++) {
       for (int iy=-MaxkIndex[1]; iy<=MaxkIndex[1]; iy++) {
 	for (int iz=-MaxkIndex[2]; iz<=MaxkIndex[2]; iz++) {
@@ -195,7 +195,7 @@ class SystemClass
 	}
       }
     }
-    cerr << k.size() << endl;
+    //cerr << k.size() << endl;
   }
   void getDisp(int i, int j, double& d, double& d2, dVec& r12)
   {

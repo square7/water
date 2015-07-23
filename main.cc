@@ -1,27 +1,80 @@
 #include "ewald.h"
-#include "Timer.h"
 #include <cstdlib>
+
+double err(SystemClass& sys, const vector<dVec>& f)
+{
+  double e=0.0;
+  double sf=0;
+  double sf2=0;
+  for(int i = 0; i < sys.r.size(); ++i)
+    {
+      dVec Fdiff=sys.force[i]-f[i];
+      e+=Fdiff*Fdiff;
+      sf+=f[i]*f[i];
+      sf2+=sys.force[i]*sys.force[i];
+      //cerr << i << " " << sys.force[i] << endl;
+      //cerr << i << " " << f[i] << endl;
+    }
+  //cerr << sf << endl;
+  //cerr << sf2 << endl;
+  //cerr << e << endl;
+  return e;
+}
+
+vector<double> optimizer(const vector<double>& p, const vector<dVec>& force ,double step=1e-2)
+{  
+  vector<double> params(p);
+  vector<double> p0(p);
+  vector<double> outp(p);
+  SystemClass sys(string("10000.cel"), string("10000.pos"),params[0],params[1],params[2],params[3],params[4],params[5],params[6],params[7],params[8],params[9],params[10]);
+  double energy0=screened(sys);
+  double e0=err(sys,force);
+  cerr << e0 << endl;
+  for(int i = 3;i<11;++i) // tunable params
+    {
+      params=p0;
+      params[i]+=step;
+      SystemClass temp(string("10000.cel"), string("10000.pos"),params[0],params[1],params[2],params[3],params[4],params[5],params[6],params[7],params[8],params[9],params[10]);
+      double energy1=screened(temp);
+      double e1=err(temp,force);
+      if(e1<e0)
+	{outp[i]+=step*(e0-e1);}
+      else
+	{outp[i]-=step;}
+    }
+  return outp;
+}
 
 int main(int argc, char** argv)
 {
   cout << setprecision(15) << fixed;
-  SystemClass sys(argv[1], argv[2]);
-  // for(int i = 1; i < 100; ++i)
-  //   {
-  //     sys.params.kcut=.1+i*1.0;
-  //     sys.buildk();sys.buildDisp();
-  //     cout << i << " " << screened(sys) << " " << sys.force[0] << endl;
-  //   }
-  double e=screened(sys);
-  cerr << e << endl;
-  for(int i = 0; i < sys.r.size(); ++i)
+  ifstream is("params.txt");
+  vector<double> params;
+  vector<string> pNames;
+  double ele;
+  string pName;
+  for(int i = 0; i < 11; ++i)
     {
-      cout << sys.type[i] << " " << sys.q[i] << " " << sys.force[i] << endl;
+      is>>pName>>ele;
+      //cerr << pName << ele << endl;
+      params.push_back(ele);
+      pNames.push_back(pName);
     }
-  //  cout << sys.force[0] << endl;
-  // sys.r[0][1]+=1e-6;
-  // sys.buildDisp();
-  // double e2=screened(sys);
-  // cout << (e2-e)/1e-6 << endl;
-  // cout << sys.force[0] << endl;
+  cout << setprecision(15) << fixed;
+  vector<dVec> force;
+  ifstream isf("10000.for");
+  string str;
+  while(getline(isf,str))
+    {
+      istringstream iss(str);
+      char typ;
+      vector<double> f(3);
+      iss>>typ>>f[0]>>f[1]>>f[2];
+      force.push_back(dVec(f));
+    }
+  vector<double> newP=optimizer(params, force);
+  for(int i = 0;i < pNames.size(); ++i)
+    {
+      cout << pNames[i] << " " << newP[i] << endl;
+    }
 }
