@@ -77,7 +77,7 @@ double screened(SystemClass& sys)
     {
       dVec kps=sys.k[k];
       double k2=kps*kps;
-      double fac=2*4.0*M_PI/sys.params.vol/k2*exp(-k2/2.0/sys.params.alpha);
+      double fac=2./sys.params.vol/k2*exp(-k2/2.0/sys.params.alpha);
       complex<double> S2=sys.eikr[k]*conj(sys.eikr[k])-64*6.;
       //cerr << "S2=" << S2 << " ";
       energy+=fac*S2.real();
@@ -140,7 +140,7 @@ double screened(SystemClass& sys)
 	{
 	  dVec kps=sys.k[k];
 	  double k2 = kps*kps;
-	  double fac=2*4.0*M_PI/sys.params.vol/k2*exp(-k2/2.0/sys.params.alpha);
+	  double fac=2./sys.params.vol/k2*exp(-k2/2.0/sys.params.alpha);
 	  complex<double> temp = sys.eikr[k]*exp(complex<double>(0,1.0)*(kps*sys.r[i]));
 	  complex<double> fac2 = (temp-conj(temp))/complex<double>(0, 1.0);
 	  //cerr << fac2 <<endl;
