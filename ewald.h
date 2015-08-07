@@ -98,7 +98,7 @@ class ParameterClass
     inc=dVec(transV[5]);
   }
   ParameterClass() {}
-  double alpha, kcut, qO, qH, AOO, AHH, AOH, AHO, RO, RH, rho, rcut;
+  double alpha, kcut, qO, qH, AOO, AHH, AOH, AHO, RO, RH, rho, rcut, DOO,DHH,DOH,rmoo,rmhh,rmoh,raoo,rahh,raoh;
   dVec a,b,c, ka, kb, kc, ina, inb, inc;
   double vol;
 };
@@ -114,7 +114,7 @@ class SystemClass
   vector<char> type;
   vector<vector<dVec> > disp;
   vector<vector<double> > dist, dist2;
-  SystemClass(string cel, string pos, double a=10., double kc=8.0, double rc=4.0, double o=-2.,double h=1.,double aoo=10,double ahh=10,double aoh=10,double ro=.5, double rh=.2,double rr=.1)
+  SystemClass(string cel, string pos, double a=10., double kc=8.0, double rc=4.0, double o=-1.8,double h=.9,double aoo=10,double ahh=10,double aoh=10,double ro=.5, double rh=.2,double rr=.1, double doo=-.02, double dhh=-.005, double doh=-.03, double rmoo=3.2, double rmhh=2.4, double rmoh=2.5, double raoo=.5, double rahh=.5, double raoh=.5)
     {
       params.alpha=a;
       params.kcut=kc;
@@ -124,6 +124,15 @@ class SystemClass
       params.AOO=aoo;
       params.AHH=ahh;
       params.AOH=params.AHO=aoh;
+      params.DOO=doo;
+      params.DHH=dhh;
+      params.DOH=doh;
+      params.rmoo=rmoo;
+      params.rmhh=rmhh;
+      params.rmoh=rmoh;
+      params.raoo=raoo;
+      params.rahh=rahh;
+      params.raoh=raoh;
       params.RO=ro;
       params.RH=rh;
       params.rho=rr;
@@ -276,6 +285,7 @@ class SystemClass
 
 double ewald(SystemClass& sys);
 double screened(SystemClass& sys);
-
+double ele(SystemClass& sys);
+double morse(SystemClass& sys);
 
 #endif

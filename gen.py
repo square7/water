@@ -9,16 +9,20 @@ st=int(sys.argv[1])
 pos=open('P22.100.pos','r')
 force=open('P22.100.for','r')
 cel=open('P22.100.cel','r')
+ene=open('P22.100.evp','r')
 
 for cnt in range(st*(tot+1)+1): #skip prev steps and head(+1)
     pos.readline()
     force.readline()
 for cnt in range(st*4+1):
     cel.readline()
+for cnt in range(st):
+    ene.readline()
 
 op=open('10000.pos','w')
 oc=open('10000.cel','w')
 of=open('10000.for','w')
+oe=open('10000.ene','w')
 for cnt in range(OO):
     sp=[float(ele) for ele in string.split(pos.readline())]
     sf=[float(ele) for ele in string.split(force.readline())]
@@ -44,3 +48,4 @@ inc=inv(c)
 for ele in inc:
     print>>oc, ele[0],ele[1],ele[2]
 
+print >>oe, string.split(ene.readline())[4]

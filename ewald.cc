@@ -69,6 +69,121 @@ dVec crossProd(const dVec& l, const dVec& r)
   return ans;
 }
 
+double ele(SystemClass& sys)
+{
+  double energy=0;
+  // screened potential
+  for (int k = 0; k < sys.k.size(); ++k)
+    {
+      dVec kps=sys.k[k];
+      double k2=kps*kps;
+      double fac=2./sys.params.vol/k2*exp(-k2/2.0/sys.params.alpha);
+      complex<double> S2=sys.eikr[k]*conj(sys.eikr[k])-64*6.;
+      //cerr << "S2=" << S2 << " ";
+      energy+=fac*S2.real();
+      //cerr << "imag should be 0: " << S2.imag() << endl;
+    }  
+  return energy;
+}
+
+double morse(SystemClass& sys)
+{
+  double energy=0;
+  // screened potential
+  for (int k = 0; k < sys.k.size(); ++k)
+    {
+      dVec kps=sys.k[k];
+      double k2=kps*kps;
+      double fac=2./sys.params.vol/k2*exp(-k2/2.0/sys.params.alpha);
+      complex<double> S2=sys.eikr[k]*conj(sys.eikr[k])-64*6.;
+      energy+=fac*S2.real();
+    }  
+  for (int i = 0; i < sys.r.size(); ++i)
+    {
+      for(int j = i+1;j < sys.r.size(); ++j)
+	{
+	  dVec r12;
+	  double dist, dist2;
+	  sys.getDisp(i,j,dist,dist2,r12);
+	  if(dist>sys.params.rcut){continue;}
+	  double fac=0;
+	  double fac2=0;
+	  if(sys.type[i]=='O' && sys.type[j]=='O')
+	    {
+	      fac=sys.params.DOO;
+	      fac2=(dist-sys.params.rmoo)*sys.params.raoo;
+	    }
+	  else if(sys.type[i]=='H' && sys.type[j]=='H')
+	    {
+	      fac=sys.params.DHH;
+	      fac2=(dist-sys.params.rmhh)*sys.params.rahh;
+	    }
+	  else
+	    {
+	      fac=sys.params.DOH;
+	      fac2=(dist-sys.params.rmoh)*sys.params.raoh;
+	    }
+	  double fac3=1.-exp(-fac2);
+	  energy+=fac*fac3*fac3;
+	}
+    }
+  // Next calculate forces
+  // screened coulomb 
+  for(int i = 0; i < sys.r.size(); ++i)
+    {
+      dVec sk;
+      for(int k = 0; k < sys.k.size(); ++k)
+	{
+	  dVec kps=sys.k[k];
+	  double k2 = kps*kps;
+	  double fac=2./sys.params.vol/k2*exp(-k2/2.0/sys.params.alpha);
+	  complex<double> temp = sys.eikr[k]*exp(complex<double>(0,1.0)*(kps*sys.r[i]));
+	  complex<double> fac2 = (temp-conj(temp))/complex<double>(0, 1.0);
+	  //cerr << fac2 <<endl;
+	  sk=sk+fac*fac2.real()*kps;
+	}
+      sys.force[i]=sys.q[i]*sk;
+    }
+  for(int i = 0; i < sys.r.size(); ++i)
+    {
+      dVec sj;
+      for(int j = 0; j < sys.r.size(); ++j)
+	{
+	  if(i==j){continue;}
+	  dVec r12;
+	  double dist, dist2;
+	  sys.getDisp(i,j,dist,dist2,r12);
+	  if(dist>sys.params.rcut){continue;}
+	  double fac=0;
+	  double fac2=0;
+	  if(sys.type[i]=='O' && sys.type[j]=='O')
+	    {
+	      fac=sys.params.DOO*sys.params.raoo;
+	      double temp=sys.params.raoo*(dist-sys.params.rmoo);
+	      fac2=exp(-temp)*(1.-exp(-temp));
+	    }
+	  else if(sys.type[i]=='H' && sys.type[j]=='H')
+	    {
+	      fac=sys.params.DHH*sys.params.rahh;
+	      double temp=sys.params.rahh*(dist-sys.params.rmhh);
+	      fac2=exp(-temp)*(1.-exp(-temp));
+	    }
+	  else
+	    {
+	      fac=sys.params.DOH*sys.params.raoh;
+	      double temp=sys.params.raoh*(dist-sys.params.rmoh);
+	      fac2=exp(-temp)*(1.-exp(-temp));
+	    }
+	  double temp=-2*fac*fac2/dist;
+	  sj=sj+temp*r12; // Need to check sign!!!
+	}
+      sys.force[i]=sys.force[i]+sj;
+    }
+  return energy;
+}
+
+
+
 double screened(SystemClass& sys)
 {
   double energy=0;
