@@ -110,7 +110,7 @@ class SystemClass
   ParameterClass params;
   vector<dVec> r, k, force;
   vector<double> q;
-  vector<complex<double> > eikr;
+  vector<complex<double> > eikr_H, eikr_O, eikr;
   vector<char> type;
   vector<vector<dVec> > disp;
   vector<vector<double> > dist, dist2;
@@ -215,6 +215,8 @@ class SystemClass
   void buildDisp() //update eikr at the same time
   {
     eikr.clear();
+    eikr_H.clear();
+    eikr_O.clear();
     for(int i = 0; i < r.size(); ++i)
       {
 	disp[i][i]=dVec();
@@ -232,11 +234,19 @@ class SystemClass
     for(int i = 0; i < k.size(); ++i)
       {
 	complex<double> currVal = 0;
+	complex<double> currVal_H = 0;
+	complex<double> currVal_O = 0;
 	dVec kps=k[i];
 	for(int j = 0; j < r.size();++j)
 	  {
+	    if(type[j]=='O')
+	      currVal_O+=exp(complex<double>(0,-1.0)*(kps*r[j]));
+	    else
+	      currVal_H+=exp(complex<double>(0,-1.0)*(kps*r[j]));
 	    currVal+=q[j]*exp(complex<double>(0,-1.0)*(kps*r[j]));
 	  }
+	eikr_H.push_back(currVal_H);
+	eikr_O.push_back(currVal_O);
 	eikr.push_back(currVal);
       }
   }

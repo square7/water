@@ -69,8 +69,8 @@ int main()
   SystemClass sys("10000.cel","10000.pos");
   double e0=ele(sys);
   cout << e0 << " " << ene << endl;
-  vector<int> OO(100),OH(100),HH(100);
-  double dr=0.05;
+  vector<int> OO(250),OH(250),HH(250);
+  double dr=0.02;
   for (int i = 0; i < sys.r.size(); ++i)
     {
       for(int j = 0;j < sys.r.size(); ++j)
@@ -78,17 +78,17 @@ int main()
   	  int idx=int(sys.dist[i][j]/dr);
   	  if(sys.type[i]=='H' && sys.type[j]=='H')
   	    {
-  	      if(idx<100)
+  	      if(idx<250)
   		{HH[idx]++;}
   	    }
   	  else if(sys.type[i]=='O' && sys.type[j]=='O')
   	    {
-  	      if(idx<100)
+  	      if(idx<250)
   		{OO[idx]++;}
   	    }
   	  else
   	    {
-  	      if(idx<100)
+  	      if(idx<250)
   		{OH[idx]++;}
   	    }
   	}
@@ -97,19 +97,27 @@ int main()
     {
       cout << OO[i] << " " << HH[i] << " " << OH[i] << endl;
     }
+  for(int i = 0;  i < sys.eikr_H.size(); ++i)
+    {
+      cout << sys.k[i] << sys.eikr_H[i].real() << " " << sys.eikr_H[i].imag() << " " << sys.eikr_O[i].real() << " " << sys.eikr_O[i].imag() << endl;
+    }
+  cerr << sys.eikr.size() << " " << sys.eikr_H.size() << " " << sys.eikr_O.size() << endl;
 }
 
-int forcecheck_main(int argc, char** argv)
+int force_ckecking_main(int argc, char** argv)
 {
   cout << setprecision(15) << fixed;
   SystemClass sys("10000.cel","10000.pos");
-  double e0=morse(sys);
+  double (*pF)(SystemClass& sys);
+  pF=ele;
+  //double e0=morse(sys);
+  double e0=pF(sys);
   int pos=atoi(argv[1]);
   int dir=atoi(argv[2]);
   cout << sys.force[pos][dir] << endl;
   sys.r[pos][dir]+=1e-6;
   sys.buildDisp();
-  double e1=morse(sys);
+  double e1=pF(sys);
   cout << (e0-e1)/1e-6 << endl;
 }
 

@@ -83,6 +83,22 @@ double ele(SystemClass& sys)
       energy+=fac*S2.real();
       //cerr << "imag should be 0: " << S2.imag() << endl;
     }  
+  // screened coulomb 
+  for(int i = 0; i < sys.r.size(); ++i)
+    {
+      dVec sk;
+      for(int k = 0; k < sys.k.size(); ++k)
+	{
+	  dVec kps=sys.k[k];
+	  double k2 = kps*kps;
+	  double fac=2./sys.params.vol/k2*exp(-k2/2.0/sys.params.alpha);
+	  complex<double> temp = sys.eikr[k]*exp(complex<double>(0,1.0)*(kps*sys.r[i]));
+	  complex<double> fac2 = (temp-conj(temp))/complex<double>(0, 1.0);
+	  //cerr << fac2 <<endl;
+	  sk=sk+fac*fac2.real()*kps;
+	}
+      sys.force[i]=sys.q[i]*sk;
+    }
   return energy;
 }
 
